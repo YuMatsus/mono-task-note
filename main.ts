@@ -1,5 +1,5 @@
 import { Plugin, Notice, moment, TFile } from 'obsidian';
-import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './settings';
+import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './src/settings';
 import { TaskManager } from './src/taskManager';
 
 export default class MonoTaskNotePlugin extends Plugin {
@@ -25,7 +25,12 @@ export default class MonoTaskNotePlugin extends Plugin {
 				const activeFile = this.app.workspace.getActiveFile();
 				if (activeFile && activeFile.extension === 'md') {
 					if (!checking) {
-						this.taskManager.completeTask(activeFile);
+						void this.taskManager
+							.completeTask(activeFile)
+							.catch((err: unknown) => {
+								const msg = err instanceof Error ? err.message : String(err);
+								new Notice(`Failed to complete task: ${msg}`);
+							});
 					}
 					return true;
 				}
@@ -40,7 +45,12 @@ export default class MonoTaskNotePlugin extends Plugin {
 				const activeFile = this.app.workspace.getActiveFile();
 				if (activeFile && activeFile.extension === 'md') {
 					if (!checking) {
-						this.taskManager.uncompleteTask(activeFile);
+						void this.taskManager
+							.uncompleteTask(activeFile)
+							.catch((err: unknown) => {
+								const msg = err instanceof Error ? err.message : String(err);
+								new Notice(`Failed to uncomplete task: ${msg}`);
+							});
 					}
 					return true;
 				}
@@ -55,7 +65,12 @@ export default class MonoTaskNotePlugin extends Plugin {
 				const activeFile = this.app.workspace.getActiveFile();
 				if (activeFile && activeFile.extension === 'md') {
 					if (!checking) {
-						this.taskManager.toggleTaskCompletion(activeFile);
+						void this.taskManager
+							.toggleTaskCompletion(activeFile)
+							.catch((err: unknown) => {
+								const msg = err instanceof Error ? err.message : String(err);
+								new Notice(`Failed to toggle task: ${msg}`);
+							});
 					}
 					return true;
 				}
@@ -158,7 +173,12 @@ export default class MonoTaskNotePlugin extends Plugin {
 		// Only process markdown files
 		if (file.extension !== 'md') return;
 		
-		// Delegate to TaskManager
-		await this.taskManager.handleDoneStatusChange(file);
+		// Delegate to TaskManager with error handling
+		try {
+			await this.taskManager.handleDoneStatusChange(file);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : String(err);
+			new Notice(`Failed to update done_at: ${msg}`);
+		}
 	}
 }

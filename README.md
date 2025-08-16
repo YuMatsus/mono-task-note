@@ -27,9 +27,16 @@ An Obsidian plugin for managing tasks by adding metadata (frontmatter) to notes.
 
 - **Automatic done_at timestamp**: Automatically adds completion timestamp when task is marked as done
   - When `done` is changed to `true`, automatically adds `done_at` field
+  - When `done` is changed to `false`, automatically removes `done_at` field
   - Configurable timestamp format in plugin settings
   - Default format: `YYYY-MM-DDTHH:mm:ssZ` (ISO 8601)
   - Uses moment.js format strings for customization
+  - Updates `done_at` if it's null, undefined, or empty when marking as complete
+
+- **Task completion commands**: Quick commands to manage task completion status (only works with `type: task` notes)
+  - **Complete current task**: Marks the active task as done and adds/updates `done_at` timestamp
+  - **Uncomplete current task**: Marks the task as incomplete and removes `done_at`
+  - **Toggle task completion**: Quickly switch between done/undone states
 
 ## Installation
 
