@@ -1,17 +1,65 @@
 import { Plugin, Notice, moment, TFile } from 'obsidian';
 import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './settings';
+import { TaskManager } from './src/taskManager';
 
 export default class MonoTaskNotePlugin extends Plugin {
 	settings: MonoTaskNoteSettings;
+	taskManager: TaskManager;
 
 	async onload() {
 		await this.loadSettings();
+		this.taskManager = new TaskManager(this.app, this.settings);
 
 		this.addCommand({
 			id: 'create-task-note',
 			name: 'Create task note',
 			callback: async () => {
 				await this.createTaskNote();
+			}
+		});
+
+		this.addCommand({
+			id: 'complete-current-task',
+			name: 'Complete current task',
+			checkCallback: (checking: boolean) => {
+				const activeFile = this.app.workspace.getActiveFile();
+				if (activeFile && activeFile.extension === 'md') {
+					if (!checking) {
+						this.taskManager.completeTask(activeFile);
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+
+		this.addCommand({
+			id: 'uncomplete-current-task',
+			name: 'Uncomplete current task',
+			checkCallback: (checking: boolean) => {
+				const activeFile = this.app.workspace.getActiveFile();
+				if (activeFile && activeFile.extension === 'md') {
+					if (!checking) {
+						this.taskManager.uncompleteTask(activeFile);
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+
+		this.addCommand({
+			id: 'toggle-task-completion',
+			name: 'Toggle task completion',
+			checkCallback: (checking: boolean) => {
+				const activeFile = this.app.workspace.getActiveFile();
+				if (activeFile && activeFile.extension === 'md') {
+					if (!checking) {
+						this.taskManager.toggleTaskCompletion(activeFile);
+					}
+					return true;
+				}
+				return false;
 			}
 		});
 
@@ -109,19 +157,8 @@ export default class MonoTaskNotePlugin extends Plugin {
 	async handleMetadataChange(file: TFile) {
 		// Only process markdown files
 		if (file.extension !== 'md') return;
-
-		const metadata = this.app.metadataCache.getFileCache(file);
-		if (!metadata || !metadata.frontmatter) return;
-
-		const frontmatter = metadata.frontmatter;
 		
-		// Check if done is true and done_at doesn't exist
-		if (frontmatter.done === true && !frontmatter.done_at) {
-			await this.app.fileManager.processFrontMatter(file, (fm) => {
-				// Add done_at timestamp using configured format or default
-				const format = this.settings.doneAtFormat || 'YYYY-MM-DDTHH:mm:ssZ';
-				fm.done_at = moment().format(format);
-			});
-		}
+		// Delegate to TaskManager
+		await this.taskManager.handleDoneStatusChange(file);
 	}
 }
