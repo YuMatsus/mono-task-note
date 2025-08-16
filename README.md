@@ -16,6 +16,15 @@ An Obsidian plugin for managing tasks by adding metadata (frontmatter) to notes.
     - `type`: task
   - Opens the created note automatically
 
+- **Template support**: Use custom templates for task notes
+  - Configure template file in plugin settings
+  - Supports the same template variables as Obsidian's core Templates plugin:
+    - `{{date}}`: Current date (YYYY-MM-DD)
+    - `{{time}}`: Current time (HH:mm)
+    - `{{title}}`: Task note filename (timestamp)
+    - `{{date:FORMAT}}`: Custom date format (e.g., `{{date:YYYY/MM/DD}}`)
+    - `{{time:FORMAT}}`: Custom time format (e.g., `{{time:HH:mm:ss}}`)
+
 ## Installation
 
 1. Copy `main.js`, `styles.css`, and `manifest.json` to your vault `VaultFolder/.obsidian/plugins/mono-task-note/`
