@@ -2,6 +2,7 @@
 	"name": "obsidian-mono-task-note",
 	"version": "0.1.0",
 	"description": "Treat each note as a single task for simple task management in Obsidian",
+	"private": true,
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
