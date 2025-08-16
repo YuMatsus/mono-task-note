@@ -16,6 +16,13 @@ export default class MonoTaskNotePlugin extends Plugin {
 		});
 
 		this.addSettingTab(new MonoTaskNoteSettingTab(this.app, this));
+
+		// Register metadata change event
+		this.registerEvent(
+			this.app.metadataCache.on('changed', (file) => {
+				this.handleMetadataChange(file);
+			})
+		);
 	}
 
 	async loadSettings() {
@@ -97,5 +104,24 @@ export default class MonoTaskNotePlugin extends Plugin {
 		});
 		
 		return processedContent;
+	}
+
+	async handleMetadataChange(file: TFile) {
+		// Only process markdown files
+		if (file.extension !== 'md') return;
+
+		const metadata = this.app.metadataCache.getFileCache(file);
+		if (!metadata || !metadata.frontmatter) return;
+
+		const frontmatter = metadata.frontmatter;
+		
+		// Check if done is true and done_at doesn't exist
+		if (frontmatter.done === true && !frontmatter.done_at) {
+			await this.app.fileManager.processFrontMatter(file, (fm) => {
+				// Add done_at timestamp using configured format or default
+				const format = this.settings.doneAtFormat || 'YYYY-MM-DDTHH:mm:ssZ';
+				fm.done_at = moment().format(format);
+			});
+		}
 	}
 }
