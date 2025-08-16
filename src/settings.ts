@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting, TFile, FuzzySuggestModal } from 'obsidian';
-import type MonoTaskNotePlugin from '../main';
+import type MonoTaskNotePlugin from './main';
 
 export interface MonoTaskNoteSettings {
 	templatePath: string;
