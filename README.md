@@ -25,6 +25,12 @@ An Obsidian plugin for managing tasks by adding metadata (frontmatter) to notes.
     - `{{date:FORMAT}}`: Custom date format (e.g., `{{date:YYYY/MM/DD}}`)
     - `{{time:FORMAT}}`: Custom time format (e.g., `{{time:HH:mm:ss}}`)
 
+- **Automatic done_at timestamp**: Automatically adds completion timestamp when task is marked as done
+  - When `done` is changed to `true`, automatically adds `done_at` field
+  - Configurable timestamp format in plugin settings
+  - Default format: `YYYY-MM-DDTHH:mm:ssZ` (ISO 8601)
+  - Uses moment.js format strings for customization
+
 ## Installation
 
 1. Copy `main.js`, `styles.css`, and `manifest.json` to your vault `VaultFolder/.obsidian/plugins/mono-task-note/`
