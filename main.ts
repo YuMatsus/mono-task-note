@@ -2,6 +2,8 @@ import { Plugin, Notice, moment, TFile } from 'obsidian';
 import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './src/settings';
 import { TaskManager } from './src/taskManager';
 
+import { TaskFrontmatter } from './src/types';
+
 export default class MonoTaskNotePlugin extends Plugin {
 	settings: MonoTaskNoteSettings;
 	taskManager: TaskManager;
@@ -117,20 +119,21 @@ export default class MonoTaskNotePlugin extends Plugin {
 				file = await this.createDefaultTaskNote(fileName);
 			}
 			
-			await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
-				if (!frontmatter.done) frontmatter.done = false;
-				if (!frontmatter.due_date) frontmatter.due_date = null;
-				if (!frontmatter.priority) frontmatter.priority = 4;
-				if (!frontmatter.scheduled_time) frontmatter.scheduled_time = null;
-				if (!frontmatter.type) frontmatter.type = 'task';
+			await this.app.fileManager.processFrontMatter(file, (frontmatter: Partial<TaskFrontmatter>) => {
+				frontmatter.done ??= false;
+				frontmatter.due_date ??= null;
+				frontmatter.priority ??= 4;
+				frontmatter.scheduled_time ??= null;
+				frontmatter.type ??= 'task';
 			});
 			
 			new Notice(`Task note created: ${fileName}`);
 			
 			const leaf = this.app.workspace.getLeaf(false);
 			await leaf.openFile(file);
-		} catch (error) {
-			new Notice(`Failed to create task note: ${error.message}`);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : String(err);
+			new Notice(`Failed to create task note: ${msg}`);
 		}
 	}
 
