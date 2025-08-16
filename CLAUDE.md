@@ -39,6 +39,7 @@
 ## Obsidian Plugin Best Practices
 
 - **Obsidian API**: Use only official public APIs, avoid undocumented internals
+  - API Reference: https://docs.obsidian.md/Reference
 - **Plugin class**: Extend `Plugin` class, implement `onload()` and `onunload()`
 - **Settings management**: Persist settings with `loadData()` and `saveData()`
 - **Event handling**: Register events with `registerEvent()` for automatic cleanup
