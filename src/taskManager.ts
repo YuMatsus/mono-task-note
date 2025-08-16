@@ -1,5 +1,6 @@
 import { App, TFile, moment } from 'obsidian';
 import { MonoTaskNoteSettings } from './settings';
+import { TaskFrontmatter, isTaskFrontmatter } from './types';
 
 export class TaskManager {
     constructor(
@@ -15,22 +16,12 @@ export class TaskManager {
         return moment().format(format);
     }
 
-    /**
-     * Check if the file is a task note (has type: task in frontmatter)
-     */
-    private async isTaskNote(file: TFile): Promise<boolean> {
-        const metadata = this.app.metadataCache.getFileCache(file);
-        if (!metadata || !metadata.frontmatter) {
-            return false;
-        }
-        return metadata.frontmatter.type === 'task';
-    }
 
     /**
      * Check if done_at field needs to be updated
      * Returns true if done_at is null, undefined, or empty string
      */
-    private needsDoneAtUpdate(doneAt: unknown): boolean {
+    private needsDoneAtUpdate(doneAt: TaskFrontmatter['done_at']): boolean {
         return doneAt === null || doneAt === undefined || doneAt === '';
     }
 
@@ -39,11 +30,12 @@ export class TaskManager {
      */
     async completeTask(file: TFile): Promise<void> {
         // Check if this is a task note
-        if (!await this.isTaskNote(file)) {
+        const metadata = this.app.metadataCache.getFileCache(file);
+        if (!isTaskFrontmatter(metadata?.frontmatter)) {
             return;
         }
 
-        await this.app.fileManager.processFrontMatter(file, (fm) => {
+        await this.app.fileManager.processFrontMatter(file, (fm: Partial<TaskFrontmatter>) => {
             fm.done = true;
             // Update done_at if it's null, undefined, or empty
             if (this.needsDoneAtUpdate(fm.done_at)) {
@@ -57,11 +49,12 @@ export class TaskManager {
      */
     async uncompleteTask(file: TFile): Promise<void> {
         // Check if this is a task note
-        if (!await this.isTaskNote(file)) {
+        const metadata = this.app.metadataCache.getFileCache(file);
+        if (!isTaskFrontmatter(metadata?.frontmatter)) {
             return;
         }
 
-        await this.app.fileManager.processFrontMatter(file, (fm) => {
+        await this.app.fileManager.processFrontMatter(file, (fm: Partial<TaskFrontmatter>) => {
             fm.done = false;
             delete fm.done_at;
         });
@@ -73,11 +66,11 @@ export class TaskManager {
     async toggleTaskCompletion(file: TFile): Promise<void> {
         // Check if this is a task note before processing
         const metadata = this.app.metadataCache.getFileCache(file);
-        if (!metadata || !metadata.frontmatter || metadata.frontmatter.type !== 'task') {
+        if (!isTaskFrontmatter(metadata?.frontmatter)) {
             return;
         }
 
-        await this.app.fileManager.processFrontMatter(file, (fm) => {
+        await this.app.fileManager.processFrontMatter(file, (fm: Partial<TaskFrontmatter>) => {
             const wasDone = fm.done === true;
             fm.done = !wasDone;
             
@@ -99,22 +92,20 @@ export class TaskManager {
      */
     async handleDoneStatusChange(file: TFile): Promise<void> {
         const metadata = this.app.metadataCache.getFileCache(file);
-        if (!metadata || !metadata.frontmatter) return;
-
-        const frontmatter = metadata.frontmatter;
+        const frontmatter = metadata?.frontmatter;
         
         // Only process task notes
-        if (frontmatter.type !== 'task') return;
+        if (!isTaskFrontmatter(frontmatter)) return;
         
         // Check if done is true and done_at doesn't exist or is empty
         if (frontmatter.done === true && this.needsDoneAtUpdate(frontmatter.done_at)) {
-            await this.app.fileManager.processFrontMatter(file, (fm) => {
+            await this.app.fileManager.processFrontMatter(file, (fm: Partial<TaskFrontmatter>) => {
                 fm.done_at = this.formatNow();
             });
         } 
         // Remove done_at if done is false but done_at exists
         else if (frontmatter.done !== true && frontmatter.done_at) {
-            await this.app.fileManager.processFrontMatter(file, (fm) => {
+            await this.app.fileManager.processFrontMatter(file, (fm: Partial<TaskFrontmatter>) => {
                 delete fm.done_at;
             });
         }

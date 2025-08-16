@@ -2,6 +2,8 @@ import { Plugin, Notice, moment, TFile } from 'obsidian';
 import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './src/settings';
 import { TaskManager } from './src/taskManager';
 
+import { TaskFrontmatter } from './src/types';
+
 export default class MonoTaskNotePlugin extends Plugin {
 	settings: MonoTaskNoteSettings;
 	taskManager: TaskManager;
@@ -117,7 +119,7 @@ export default class MonoTaskNotePlugin extends Plugin {
 				file = await this.createDefaultTaskNote(fileName);
 			}
 			
-			await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+			await this.app.fileManager.processFrontMatter(file, (frontmatter: Partial<TaskFrontmatter>) => {
 				if (!frontmatter.done) frontmatter.done = false;
 				if (!frontmatter.due_date) frontmatter.due_date = null;
 				if (!frontmatter.priority) frontmatter.priority = 4;
