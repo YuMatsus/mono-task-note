@@ -1,7 +1,7 @@
 {
 	"id": "mono-task-note",
 	"name": "Mono Task Note",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
 	"description": "Treat each note as a single task for simple task management in Obsidian.",
 	"author": "YuMatsus",
