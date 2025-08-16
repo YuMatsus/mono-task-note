@@ -3,10 +3,12 @@ import type MonoTaskNotePlugin from './main';
 
 export interface MonoTaskNoteSettings {
 	templatePath: string;
+	doneAtFormat: string;
 }
 
 export const DEFAULT_SETTINGS: MonoTaskNoteSettings = {
-	templatePath: ''
+	templatePath: '',
+	doneAtFormat: ''
 };
 
 export class MonoTaskNoteSettingTab extends PluginSettingTab {
@@ -48,6 +50,17 @@ export class MonoTaskNoteSettingTab extends PluginSettingTab {
 						}).open();
 					});
 			});
+
+		new Setting(containerEl)
+			.setName('Done Timestamp Format')
+			.setDesc('Format for the done_at timestamp (uses moment.js format). Default: YYYY-MM-DDTHH:mm:ssZ')
+			.addText(text => text
+				.setPlaceholder('YYYY-MM-DDTHH:mm:ssZ')
+				.setValue(this.plugin.settings.doneAtFormat)
+				.onChange(async (value) => {
+					this.plugin.settings.doneAtFormat = value;
+					await this.plugin.saveSettings();
+				}));
 	}
 }
 
