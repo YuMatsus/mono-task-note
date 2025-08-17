@@ -41,6 +41,19 @@ export class TaskManager {
             frontmatter.scheduled_time || null
         );
 
+        // If next recurrence cannot be determined, show a notice but don't clobber fields
+        if (!nextRecurrence.due_date && !nextRecurrence.scheduled_time) {
+            new Notice('Warning: Could not determine next recurrence date/time. Please check your recurring task settings.');
+            // Mark as complete anyway but keep existing dates
+            await this.app.fileManager.processFrontMatter(file, (fm: Partial<TaskFrontmatter>) => {
+                fm.done = true;
+                if (this.needsDoneAtUpdate(fm.done_at)) {
+                    fm.done_at = this.formatNow();
+                }
+            });
+            return;
+        }
+
         await this.app.fileManager.processFrontMatter(file, (fm: Partial<TaskFrontmatter>) => {
             // Keep done as false for recurring tasks
             fm.done = false;

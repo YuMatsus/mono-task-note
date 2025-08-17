@@ -2,7 +2,7 @@ import { moment } from 'obsidian';
 
 export interface RecurringTaskSettings {
     recurring_days_of_month?: number[];
-    recurring_days_of_week?: string[];
+    recurring_days_of_week?: ('Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat')[];
     recurring_scheduled_times?: string[];
 }
 
@@ -32,8 +32,12 @@ export function calculateNextRecurrence(
         recurring_scheduled_times = [] 
     } = settings;
 
-    // If no recurring settings are configured, return null values
-    if (recurring_days_of_month.length === 0 && recurring_days_of_week.length === 0) {
+    // Support time-only recurrence (no day constraints)
+    const hasDateConstraints = recurring_days_of_month.length > 0 || recurring_days_of_week.length > 0;
+    const hasTimeConstraints = recurring_scheduled_times.length > 0;
+
+    // If no recurring settings are configured at all, return null values
+    if (!hasDateConstraints && !hasTimeConstraints) {
         return { due_date: null, scheduled_time: null };
     }
 
@@ -61,10 +65,10 @@ export function calculateNextRecurrence(
     let nextDate: moment.Moment | null = null;
     let nextScheduledTime: string | null = null;
 
-    // If we have recurring times and a current time, check for next time on the same day
-    if (recurring_scheduled_times.length > 0 && currentTimeStr && currentDueDate) {
+    // If we have recurring times, check for next time on the same day
+    if (hasTimeConstraints && currentTimeStr) {
         const sortedTimes = [...recurring_scheduled_times].sort();
-        const todayDate = moment(currentDueDate);
+        const todayDate = currentDueDate ? moment(currentDueDate) : moment();
         
         // Find the next time slot on the same day
         for (const time of sortedTimes) {
@@ -79,19 +83,25 @@ export function calculateNextRecurrence(
 
     // If we didn't find a time on the same day, move to the next recurring day
     if (!nextDate) {
-        nextDate = findNextRecurringDate(
-            baseDate,
-            recurring_days_of_month,
-            recurring_days_of_week,
-            nextScheduledTime === null // Only skip to next day if we haven't found a time
-        );
+        if (hasDateConstraints) {
+            // Find next date based on day constraints
+            nextDate = findNextRecurringDate(
+                baseDate,
+                recurring_days_of_month,
+                recurring_days_of_week,
+                nextScheduledTime === null // Only skip to next day if we haven't found a time
+            );
+        } else if (hasTimeConstraints) {
+            // Time-only recurrence: advance to tomorrow
+            nextDate = baseDate.clone().add(1, 'day').startOf('day');
+        }
 
         if (!nextDate) {
             return { due_date: null, scheduled_time: null };
         }
 
         // Set the first scheduled time for the new day
-        if (recurring_scheduled_times.length > 0) {
+        if (hasTimeConstraints) {
             const sortedTimes = [...recurring_scheduled_times].sort();
             nextScheduledTime = sortedTimes[0];
         }
@@ -109,7 +119,7 @@ export function calculateNextRecurrence(
 function findNextRecurringDate(
     baseDate: moment.Moment,
     daysOfMonth: number[],
-    daysOfWeek: string[],
+    daysOfWeek: ('Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat')[],
     skipToNextDay: boolean = true
 ): moment.Moment | null {
     const candidates: moment.Moment[] = [];

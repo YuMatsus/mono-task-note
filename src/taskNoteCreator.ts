@@ -125,13 +125,15 @@ export class TaskNoteCreator {
 
 	private async initializeRecurringFrontmatter(file: TFile): Promise<void> {
 		await this.app.fileManager.processFrontMatter(file, (frontmatter: Partial<TaskFrontmatter>) => {
-			frontmatter.attributes = ['recurring'];
+			// Preserve existing attributes and add 'recurring' if not present
+			frontmatter.attributes = Array.from(new Set([...(frontmatter.attributes ?? []), 'recurring']));
 			frontmatter.done ??= false;
 			frontmatter.due_date ??= null;
 			frontmatter.priority ??= 4;
-			frontmatter.recurring_days_of_month = [];
-			frontmatter.recurring_days_of_week = [];
-			frontmatter.recurring_scheduled_times = [];
+			// Only initialize if not already present
+			frontmatter.recurring_days_of_month ??= [];
+			frontmatter.recurring_days_of_week ??= [];
+			frontmatter.recurring_scheduled_times ??= [];
 			frontmatter.scheduled_time ??= null;
 			frontmatter.type ??= 'task';
 		});
