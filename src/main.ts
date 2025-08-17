@@ -1,8 +1,8 @@
 import { Plugin, Notice, moment, TFile } from 'obsidian';
-import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './src/settings';
-import { TaskManager } from './src/taskManager';
+import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './settings';
+import { TaskManager } from './taskManager';
 
-import { TaskFrontmatter } from './src/types';
+import { TaskFrontmatter } from './types';
 
 export default class MonoTaskNotePlugin extends Plugin {
 	settings: MonoTaskNoteSettings;
