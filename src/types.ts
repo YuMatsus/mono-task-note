@@ -19,9 +19,9 @@ export interface TaskFrontmatter {
     done_at?: string | null;
     due_date: string | null;
     priority: number;
-    recurringDaysOfMonth?: number[]; // Days of month for recurring tasks (1-31)
-    recurringDaysOfWeek?: string[]; // Days of week for recurring tasks (Mon, Tue, Wed, Thu, Fri, Sat, Sun)
-    recurringScheduledTimes?: string[]; // Scheduled times for recurring tasks (HH:mm format)
+    recurring_days_of_month?: number[]; // Days of month for recurring tasks (1-31)
+    recurring_days_of_week?: ('Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat')[]; // Days of week for recurring tasks
+    recurring_scheduled_times?: string[]; // Scheduled times for recurring tasks (HH:mm format)
     scheduled_time: string | null;
     type: 'task';
     [key: string]: unknown; // Allow additional properties
