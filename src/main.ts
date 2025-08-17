@@ -109,6 +109,33 @@ export default class MonoTaskNotePlugin extends Plugin {
 		const timestamp = moment().unix();
 		const fileName = `${timestamp}.md`;
 		
+		// Construct the full path with directory if specified
+		let filePath = fileName;
+		if (this.settings.taskNoteDirectory) {
+			// Normalize the directory path (remove trailing slashes)
+			const normalizedDir = this.settings.taskNoteDirectory.replace(/\/+$/, '');
+			
+			// Ensure the directory exists
+			const folder = this.app.vault.getAbstractFileByPath(normalizedDir);
+			if (!folder) {
+				try {
+					await this.app.vault.createFolder(normalizedDir);
+				} catch (error) {
+					// Only show error if it's not about the folder already existing
+					if (error instanceof Error && !error.message.includes('already exists')) {
+						new Notice(`Failed to create directory: ${error.message}`);
+						// Fall back to root directory
+						filePath = fileName;
+					}
+				}
+			}
+			
+			// Only use the directory if we confirmed it exists or created it successfully
+			if (filePath !== fileName || folder) {
+				filePath = normalizedDir ? `${normalizedDir}/${fileName}` : fileName;
+			}
+		}
+		
 		try {
 			let file: TFile;
 			
@@ -118,12 +145,12 @@ export default class MonoTaskNotePlugin extends Plugin {
 				if (templateFile instanceof TFile) {
 					const templateContent = await this.app.vault.read(templateFile);
 					const processedContent = this.processTemplateVariables(templateContent, fileName);
-					file = await this.app.vault.create(fileName, processedContent);
+					file = await this.app.vault.create(filePath, processedContent);
 				} else {
-					file = await this.createDefaultTaskNote(fileName);
+					file = await this.createDefaultTaskNote(filePath);
 				}
 			} else {
-				file = await this.createDefaultTaskNote(fileName);
+				file = await this.createDefaultTaskNote(filePath);
 			}
 			
 			await this.app.fileManager.processFrontMatter(file, (frontmatter: Partial<TaskFrontmatter>) => {
@@ -134,7 +161,7 @@ export default class MonoTaskNotePlugin extends Plugin {
 				frontmatter.type ??= 'task';
 			});
 			
-			new Notice(`Task note created: ${fileName}`);
+			new Notice(`Task note created: ${file.basename}`);
 			
 			const leaf = this.app.workspace.getLeaf(false);
 			await leaf.openFile(file);
@@ -149,9 +176,9 @@ export default class MonoTaskNotePlugin extends Plugin {
 		}
 	}
 
-	async createDefaultTaskNote(fileName: string): Promise<TFile> {
+	async createDefaultTaskNote(filePath: string): Promise<TFile> {
 		const content = '';
-		return await this.app.vault.create(fileName, content);
+		return this.app.vault.create(filePath, content);
 	}
 
 	processTemplateVariables(content: string, fileName: string): string {
