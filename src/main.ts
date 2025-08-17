@@ -109,6 +109,21 @@ export default class MonoTaskNotePlugin extends Plugin {
 		const timestamp = moment().unix();
 		const fileName = `${timestamp}.md`;
 		
+		// Construct the full path with directory if specified
+		let filePath = fileName;
+		if (this.settings.taskNoteDirectory) {
+			// Ensure the directory exists
+			const folder = this.app.vault.getAbstractFileByPath(this.settings.taskNoteDirectory);
+			if (!folder) {
+				try {
+					await this.app.vault.createFolder(this.settings.taskNoteDirectory);
+				} catch (e) {
+					// Folder might already exist or path might be invalid
+				}
+			}
+			filePath = `${this.settings.taskNoteDirectory}/${fileName}`;
+		}
+		
 		try {
 			let file: TFile;
 			
@@ -118,12 +133,12 @@ export default class MonoTaskNotePlugin extends Plugin {
 				if (templateFile instanceof TFile) {
 					const templateContent = await this.app.vault.read(templateFile);
 					const processedContent = this.processTemplateVariables(templateContent, fileName);
-					file = await this.app.vault.create(fileName, processedContent);
+					file = await this.app.vault.create(filePath, processedContent);
 				} else {
-					file = await this.createDefaultTaskNote(fileName);
+					file = await this.createDefaultTaskNote(filePath);
 				}
 			} else {
-				file = await this.createDefaultTaskNote(fileName);
+				file = await this.createDefaultTaskNote(filePath);
 			}
 			
 			await this.app.fileManager.processFrontMatter(file, (frontmatter: Partial<TaskFrontmatter>) => {
@@ -134,7 +149,7 @@ export default class MonoTaskNotePlugin extends Plugin {
 				frontmatter.type ??= 'task';
 			});
 			
-			new Notice(`Task note created: ${fileName}`);
+			new Notice(`Task note created: ${file.basename}`);
 			
 			const leaf = this.app.workspace.getLeaf(false);
 			await leaf.openFile(file);
@@ -149,9 +164,9 @@ export default class MonoTaskNotePlugin extends Plugin {
 		}
 	}
 
-	async createDefaultTaskNote(fileName: string): Promise<TFile> {
+	async createDefaultTaskNote(filePath: string): Promise<TFile> {
 		const content = '';
-		return await this.app.vault.create(fileName, content);
+		return await this.app.vault.create(filePath, content);
 	}
 
 	processTemplateVariables(content: string, fileName: string): string {

@@ -1,14 +1,16 @@
-import { App, PluginSettingTab, Setting, TFile, FuzzySuggestModal } from 'obsidian';
+import { App, PluginSettingTab, Setting, TFile, TFolder, FuzzySuggestModal } from 'obsidian';
 import type MonoTaskNotePlugin from './main';
 
 export interface MonoTaskNoteSettings {
 	templatePath: string;
 	doneAtFormat: string;
+	taskNoteDirectory: string;
 }
 
 export const DEFAULT_SETTINGS: MonoTaskNoteSettings = {
 	templatePath: '',
-	doneAtFormat: ''
+	doneAtFormat: '',
+	taskNoteDirectory: ''
 };
 
 export class MonoTaskNoteSettingTab extends PluginSettingTab {
@@ -52,6 +54,32 @@ export class MonoTaskNoteSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
+			.setName('Task Note Directory')
+			.setDesc('Select the directory where task notes will be created')
+			.addText(text => {
+				text
+					.setPlaceholder('Directory path (leave empty for vault root)')
+					.setValue(this.plugin.settings.taskNoteDirectory)
+					.onChange(async (value) => {
+						this.plugin.settings.taskNoteDirectory = value;
+						await this.plugin.saveSettings();
+					});
+				
+				text.inputEl.style.width = '300px';
+			})
+			.addButton(button => {
+				button
+					.setButtonText('Select')
+					.onClick(() => {
+						new FolderSearchModal(this.app, async (folder: TFolder) => {
+							this.plugin.settings.taskNoteDirectory = folder.path;
+							await this.plugin.saveSettings();
+							this.display();
+						}).open();
+					});
+			});
+
+		new Setting(containerEl)
 			.setName('Done Timestamp Format')
 			.setDesc('Format for the done_at timestamp (uses moment.js format). Default: YYYY-MM-DDTHH:mm:ssZ')
 			.addText(text => text
@@ -86,5 +114,39 @@ class TemplateSearchModal extends FuzzySuggestModal<TFile> {
 
 	onChooseItem(file: TFile): void {
 		this.onChoose(file);
+	}
+}
+
+class FolderSearchModal extends FuzzySuggestModal<TFolder> {
+	onChoose: (folder: TFolder) => void;
+
+	constructor(app: App, onChoose: (folder: TFolder) => void) {
+		super(app);
+		this.onChoose = onChoose;
+	}
+
+	getItems(): TFolder[] {
+		const folders: TFolder[] = [];
+		const rootFolder = this.app.vault.getRoot();
+		
+		const collectFolders = (folder: TFolder) => {
+			folders.push(folder);
+			for (const child of folder.children) {
+				if (child instanceof TFolder) {
+					collectFolders(child);
+				}
+			}
+		};
+		
+		collectFolders(rootFolder);
+		return folders;
+	}
+
+	getItemText(folder: TFolder): string {
+		return folder.path || '/';
+	}
+
+	onChooseItem(folder: TFolder): void {
+		this.onChoose(folder);
 	}
 }
