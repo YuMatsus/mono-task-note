@@ -120,7 +120,7 @@ function findNextRecurringDate(
     baseDate: moment.Moment,
     daysOfMonth: number[],
     daysOfWeek: ('Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat')[],
-    skipToNextDay: boolean = true
+    skipToNextDay = true
 ): moment.Moment | null {
     const candidates: moment.Moment[] = [];
 

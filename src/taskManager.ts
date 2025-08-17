@@ -75,7 +75,8 @@ export class TaskManager {
             return;
         }
 
-        const frontmatter = metadata!.frontmatter;
+        const frontmatter = metadata?.frontmatter;
+        if (!frontmatter) return;
         const attributes = frontmatter.attributes || [];
         const isRecurring = attributes.includes('recurring');
 
@@ -120,7 +121,8 @@ export class TaskManager {
             return;
         }
 
-        const frontmatter = metadata!.frontmatter;
+        const frontmatter = metadata?.frontmatter;
+        if (!frontmatter) return;
         const attributes = frontmatter.attributes || [];
         const isRecurring = attributes.includes('recurring');
         const wasDone = frontmatter.done === true;
