@@ -39,7 +39,13 @@ export class CommandManager {
 			id: 'create-recurring-task-note',
 			name: 'Create recurring task note',
 			callback: async () => {
-				await this.taskNoteCreator.createRecurringTaskNote();
+				try {
+					await this.taskNoteCreator.createRecurringTaskNote();
+				} catch (err: unknown) {
+					const msg = err instanceof Error ? err.message : String(err);
+					console.error('Failed to create recurring task note:', err);
+					new Notice(`Failed to create recurring task note: ${msg}`);
+				}
 			}
 		});
 	}
