@@ -1,8 +1,15 @@
-import { Plugin, Notice, moment, TFile } from 'obsidian';
+import { Plugin, Notice, moment, TFile, App } from 'obsidian';
 import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './settings';
 import { TaskManager } from './taskManager';
 
-import { TaskFrontmatter } from './types';
+import { TaskFrontmatter, Commands } from './types';
+
+// Extend the App interface to include commands
+declare module 'obsidian' {
+    interface App {
+        commands: Commands;
+    }
+}
 
 export default class MonoTaskNotePlugin extends Plugin {
 	settings: MonoTaskNoteSettings;
@@ -131,6 +138,11 @@ export default class MonoTaskNotePlugin extends Plugin {
 			
 			const leaf = this.app.workspace.getLeaf(false);
 			await leaf.openFile(file);
+			
+			// Trigger rename command to focus on filename input
+			setTimeout(() => {
+				this.app.commands.executeCommandById('workspace:edit-file-title');
+			}, 100);
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : String(err);
 			new Notice(`Failed to create task note: ${msg}`);
