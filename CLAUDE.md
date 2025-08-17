@@ -7,7 +7,6 @@
 - Install dependencies: `npm install`
 - Run in development mode: `npm run dev`
 - Build for production: `npm run build`
-- Version bump: `npm run version`
 
 ### Testing and Linting
 
@@ -72,12 +71,22 @@
 ## Development Workflow
 
 - **Version control**: Commit frequently with clear messages
-- **Versioning**: Update version in `manifest.json`, `versions.json`, and `package.json`
-  - Use semantic versioning (e.g., 1.2.3)
-  - Run `npm run version` to automate version bumping
-  - After updating package.json, run `npm install` to update package-lock.json
 - **Impact assessment**: Evaluate how changes affect other codebase areas
 - **Documentation**: Keep README.md up-to-date with features and usage
 - **Dependencies**: When adding dependencies, always update `package-lock.json`
 - **Testing**: Test in a dedicated Obsidian vault before release
-- **Release process**: See [Release Process Documentation](./docs/RELEASE.md) for detailed steps
+
+## Release
+
+### Version Management
+
+- **Version files**: `manifest.json`, `versions.json`, `package.json` must have matching versions
+- **Tag format**: Use numeric tags without "v" prefix (e.g., `0.1.2`, not `v0.1.2`)
+- **Semantic versioning**: MAJOR.MINOR.PATCH
+- **Auto-sync**: `npm version` command updates all version files automatically
+
+### Release Commands
+
+- Patch release: `npm version patch && git push --follow-tags`
+- Minor release: `npm version minor && git push --follow-tags`  
+- Major release: `npm version major && git push --follow-tags`
