@@ -129,9 +129,9 @@ export class TaskNoteCreator {
 			frontmatter.done ??= false;
 			frontmatter.due_date ??= null;
 			frontmatter.priority ??= 4;
-			frontmatter.recurringDaysOfMonth = [];
-			frontmatter.recurringDaysOfWeek = [];
-			frontmatter.recurringScheduledTimes = [];
+			frontmatter.recurring_days_of_month = [];
+			frontmatter.recurring_days_of_week = [];
+			frontmatter.recurring_scheduled_times = [];
 			frontmatter.scheduled_time ??= null;
 			frontmatter.type ??= 'task';
 		});
