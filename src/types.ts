@@ -14,10 +14,14 @@ export interface Commands {
 }
 
 export interface TaskFrontmatter {
+    attributes?: string[]; // For recurring tasks
     done: boolean;
     done_at?: string | null;
     due_date: string | null;
     priority: number;
+    recurringDaysOfMonth?: number[]; // Days of month for recurring tasks (1-31)
+    recurringDaysOfWeek?: string[]; // Days of week for recurring tasks (Mon, Tue, Wed, Thu, Fri, Sat, Sun)
+    recurringScheduledTimes?: string[]; // Scheduled times for recurring tasks (HH:mm format)
     scheduled_time: string | null;
     type: 'task';
     [key: string]: unknown; // Allow additional properties

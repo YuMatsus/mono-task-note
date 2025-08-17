@@ -20,6 +20,20 @@ Mono Task Note treats each note as a single task, automatically managing task me
     - `scheduled_time`: null (scheduled time)
   - Automatically opens the created note for immediate editing
 
+### Recurring Tasks
+- **Create recurring task note command**: Create a task that repeats on a schedule
+  - All standard task fields plus:
+    - `attributes`: ['recurring'] (identifies as recurring task)
+    - `recurringDaysOfMonth`: [] (days of month 1-31)
+    - `recurringDaysOfWeek`: [] (days of week: Mon, Tue, Wed, Thu, Fri, Sat, Sun)
+    - `recurringScheduledTimes`: [] (times in HH:mm format)
+  
+- **Configure recurring schedules**: Interactive modals for setting recurrence patterns
+  - **Set recurring days of month**: Select specific days (1-31) when task should recur
+  - **Set recurring days of week**: Choose weekdays for weekly recurring tasks
+  - **Set recurring scheduled times**: Add multiple scheduled times in HH:mm format
+  - Commands only available for notes with `attributes: ['recurring']`
+
 ### Template System
 - **Custom templates**: Create task notes using your own templates
   - Configure template file path in plugin settings

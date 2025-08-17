@@ -15,9 +15,13 @@ export class CommandManager {
 
 	registerCommands(): void {
 		this.registerCreateTaskNoteCommand();
+		this.registerCreateRecurringTaskNoteCommand();
 		this.registerCompleteTaskCommand();
 		this.registerUncompleteTaskCommand();
 		this.registerToggleTaskCommand();
+		this.registerSetRecurringDaysOfMonthCommand();
+		this.registerSetRecurringDaysOfWeekCommand();
+		this.registerSetRecurringScheduledTimesCommand();
 	}
 
 	private registerCreateTaskNoteCommand(): void {
@@ -26,6 +30,22 @@ export class CommandManager {
 			name: 'Create task note',
 			callback: async () => {
 				await this.taskNoteCreator.createTaskNote();
+			}
+		});
+	}
+
+	private registerCreateRecurringTaskNoteCommand(): void {
+		this.plugin.addCommand({
+			id: 'create-recurring-task-note',
+			name: 'Create recurring task note',
+			callback: async () => {
+				try {
+					await this.taskNoteCreator.createRecurringTaskNote();
+				} catch (err: unknown) {
+					const msg = err instanceof Error ? err.message : String(err);
+					console.error('Failed to create recurring task note:', err);
+					new Notice(`Failed to create recurring task note: ${msg}`);
+				}
 			}
 		});
 	}
@@ -87,6 +107,72 @@ export class CommandManager {
 							.catch((err: unknown) => {
 								const msg = err instanceof Error ? err.message : String(err);
 								new Notice(`Failed to toggle task: ${msg}`);
+							});
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+	}
+
+	private registerSetRecurringDaysOfMonthCommand(): void {
+		this.plugin.addCommand({
+			id: 'set-recurring-days-of-month',
+			name: 'Set recurring days of month',
+			checkCallback: (checking: boolean) => {
+				const activeFile = this.plugin.app.workspace.getActiveFile();
+				if (activeFile && activeFile.extension === 'md') {
+					if (!checking) {
+						void this.taskManager
+							.setRecurringDaysOfMonth(activeFile)
+							.catch((err: unknown) => {
+								const msg = err instanceof Error ? err.message : String(err);
+								new Notice(`Failed to set recurring days: ${msg}`);
+							});
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+	}
+
+	private registerSetRecurringDaysOfWeekCommand(): void {
+		this.plugin.addCommand({
+			id: 'set-recurring-days-of-week',
+			name: 'Set recurring days of week',
+			checkCallback: (checking: boolean) => {
+				const activeFile = this.plugin.app.workspace.getActiveFile();
+				if (activeFile && activeFile.extension === 'md') {
+					if (!checking) {
+						void this.taskManager
+							.setRecurringDaysOfWeek(activeFile)
+							.catch((err: unknown) => {
+								const msg = err instanceof Error ? err.message : String(err);
+								new Notice(`Failed to set recurring days: ${msg}`);
+							});
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+	}
+
+	private registerSetRecurringScheduledTimesCommand(): void {
+		this.plugin.addCommand({
+			id: 'set-recurring-scheduled-times',
+			name: 'Set recurring scheduled times',
+			checkCallback: (checking: boolean) => {
+				const activeFile = this.plugin.app.workspace.getActiveFile();
+				if (activeFile && activeFile.extension === 'md') {
+					if (!checking) {
+						void this.taskManager
+							.setRecurringScheduledTimes(activeFile)
+							.catch((err: unknown) => {
+								const msg = err instanceof Error ? err.message : String(err);
+								new Notice(`Failed to set recurring times: ${msg}`);
 							});
 					}
 					return true;
