@@ -1,4 +1,4 @@
-import { Plugin, Notice, moment, TFile, App } from 'obsidian';
+import { Plugin, Notice, moment, TFile } from 'obsidian';
 import { MonoTaskNoteSettings, DEFAULT_SETTINGS, MonoTaskNoteSettingTab } from './settings';
 import { TaskManager } from './taskManager';
 
