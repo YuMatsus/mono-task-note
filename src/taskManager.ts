@@ -1,4 +1,4 @@
-import { App, TFile, moment } from 'obsidian';
+import { App, TFile, moment, Notice } from 'obsidian';
 import { MonoTaskNoteSettings } from './settings';
 import { TaskFrontmatter, isTaskFrontmatter } from './types';
 
@@ -110,4 +110,91 @@ export class TaskManager {
             });
         }
     }
+
+	async setRecurringDaysOfMonth(file: TFile): Promise<void> {
+		const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter;
+		
+		if (!frontmatter || !isTaskFrontmatter(frontmatter)) {
+			throw new Error('This file is not a task note');
+		}
+
+		const attributes = frontmatter.attributes || [];
+		if (!attributes.includes('recurring')) {
+			throw new Error('This file is not a recurring task note');
+		}
+
+		const currentDays = frontmatter.recurringDaysOfMonth || [];
+		
+		const { DaysOfMonthPickerModal } = await import('./modals/DaysOfMonthPickerModal');
+		const modal = new DaysOfMonthPickerModal(
+			this.app, 
+			file, 
+			currentDays,
+			async (days: number[]) => {
+				await this.app.fileManager.processFrontMatter(file, (fm) => {
+					fm.recurringDaysOfMonth = days;
+				});
+				new Notice(`Recurring days set: ${days.length > 0 ? days.join(', ') : 'none'}`);
+			}
+		);
+		modal.open();
+	}
+
+	async setRecurringDaysOfWeek(file: TFile): Promise<void> {
+		const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter;
+		
+		if (!frontmatter || !isTaskFrontmatter(frontmatter)) {
+			throw new Error('This file is not a task note');
+		}
+
+		const attributes = frontmatter.attributes || [];
+		if (!attributes.includes('recurring')) {
+			throw new Error('This file is not a recurring task note');
+		}
+
+		const currentDays = frontmatter.recurringDaysOfWeek || [];
+		
+		const { DaysOfWeekPickerModal } = await import('./modals/DaysOfWeekPickerModal');
+		const modal = new DaysOfWeekPickerModal(
+			this.app, 
+			file, 
+			currentDays,
+			async (days: string[]) => {
+				await this.app.fileManager.processFrontMatter(file, (fm) => {
+					fm.recurringDaysOfWeek = days;
+				});
+				new Notice(`Recurring days of week set: ${days.length > 0 ? days.join(', ') : 'none'}`);
+			}
+		);
+		modal.open();
+	}
+
+	async setRecurringScheduledTimes(file: TFile): Promise<void> {
+		const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter;
+		
+		if (!frontmatter || !isTaskFrontmatter(frontmatter)) {
+			throw new Error('This file is not a task note');
+		}
+
+		const attributes = frontmatter.attributes || [];
+		if (!attributes.includes('recurring')) {
+			throw new Error('This file is not a recurring task note');
+		}
+
+		const currentTimes = frontmatter.recurringScheduledTimes || [];
+		
+		const { ScheduledTimesPickerModal } = await import('./modals/ScheduledTimesPickerModal');
+		const modal = new ScheduledTimesPickerModal(
+			this.app, 
+			file, 
+			currentTimes,
+			async (times: string[]) => {
+				await this.app.fileManager.processFrontMatter(file, (fm) => {
+					fm.recurringScheduledTimes = times;
+				});
+				new Notice(`Recurring scheduled times set: ${times.length > 0 ? times.join(', ') : 'none'}`);
+			}
+		);
+		modal.open();
+	}
 }

@@ -39,6 +39,25 @@ export class TaskNoteCreator {
 		}
 	}
 
+	async createRecurringTaskNote(): Promise<void> {
+		const timestamp = moment().format('x');
+		const fileName = `${timestamp}.md`;
+		
+		const filePath = this.getFilePath(fileName);
+		
+		try {
+			const file = await this.createFile(filePath, fileName);
+			await this.initializeRecurringFrontmatter(file);
+			
+			new Notice(`Recurring task note created: ${file.basename}`);
+			
+			await this.openAndFocusFile(file);
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : String(err);
+			new Notice(`Failed to create recurring task note: ${msg}`);
+		}
+	}
+
 	private getFilePath(fileName: string): string {
 		if (!this.settings.taskNoteDirectory) {
 			return fileName;
@@ -99,6 +118,20 @@ export class TaskNoteCreator {
 			frontmatter.done ??= false;
 			frontmatter.due_date ??= null;
 			frontmatter.priority ??= 4;
+			frontmatter.scheduled_time ??= null;
+			frontmatter.type ??= 'task';
+		});
+	}
+
+	private async initializeRecurringFrontmatter(file: TFile): Promise<void> {
+		await this.app.fileManager.processFrontMatter(file, (frontmatter: Partial<TaskFrontmatter>) => {
+			frontmatter.attributes = ['recurring'];
+			frontmatter.done ??= false;
+			frontmatter.due_date ??= null;
+			frontmatter.priority ??= 4;
+			frontmatter.recurringDaysOfMonth = [];
+			frontmatter.recurringDaysOfWeek = [];
+			frontmatter.recurringScheduledTimes = [];
 			frontmatter.scheduled_time ??= null;
 			frontmatter.type ??= 'task';
 		});
