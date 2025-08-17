@@ -28,7 +28,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npx tsc -noEmit -skipLibCheck
+      - run: npx tsc --noEmit --skipLibCheck
 
       - run: npx eslint . --ext .ts
 
