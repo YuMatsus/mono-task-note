@@ -40,15 +40,19 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${GITHUB_REF#refs/tags/}"
-          
+          # Pre-release flag for hyphenated versions (e.g., 1.2.3-beta)
+          PRERELEASE_FLAG=""
+          if [[ "$VERSION" == *-* ]]; then PRERELEASE_FLAG="--prerelease"; fi
+
+          ASSETS=(main.js manifest.json "mono-task-note-${VERSION}.zip")
+          [[ -f styles.css ]] && ASSETS+=(styles.css)
+
           # Create release with auto-generated notes
           gh release create "$VERSION" \
             --title "$VERSION" \
             --generate-notes \
-            main.js manifest.json styles.css "mono-task-note-${VERSION}.zip" 2>/dev/null || \
-          gh release create "$VERSION" \
-            --title "$VERSION" \
-            --generate-notes \
-            main.js manifest.json "mono-task-note-${VERSION}.zip"
+            $PRERELEASE_FLAG \
+            "${ASSETS[@]}"

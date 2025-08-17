@@ -88,5 +88,5 @@
 ### Release Commands
 
 - Patch release: `npm version patch && git push --follow-tags`
-- Minor release: `npm version minor && git push --follow-tags`  
+- Minor release: `npm version minor && git push --follow-tags`
 - Major release: `npm version major && git push --follow-tags`
