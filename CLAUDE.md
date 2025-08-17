@@ -75,8 +75,9 @@
 - **Versioning**: Update version in `manifest.json`, `versions.json`, and `package.json`
   - Use semantic versioning (e.g., 1.2.3)
   - Run `npm run version` to automate version bumping
+  - After updating package.json, run `npm install` to update package-lock.json
 - **Impact assessment**: Evaluate how changes affect other codebase areas
 - **Documentation**: Keep README.md up-to-date with features and usage
 - **Dependencies**: When adding dependencies, always update `package-lock.json`
 - **Testing**: Test in a dedicated Obsidian vault before release
-- **Release process**: Build with `npm run build`, then package `main.js`, `manifest.json`, and `styles.css`
+- **Release process**: See [Release Process Documentation](./docs/RELEASE.md) for detailed steps
