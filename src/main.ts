@@ -112,16 +112,28 @@ export default class MonoTaskNotePlugin extends Plugin {
 		// Construct the full path with directory if specified
 		let filePath = fileName;
 		if (this.settings.taskNoteDirectory) {
+			// Normalize the directory path (remove trailing slashes)
+			const normalizedDir = this.settings.taskNoteDirectory.replace(/\/+$/, '');
+			
 			// Ensure the directory exists
-			const folder = this.app.vault.getAbstractFileByPath(this.settings.taskNoteDirectory);
+			const folder = this.app.vault.getAbstractFileByPath(normalizedDir);
 			if (!folder) {
 				try {
-					await this.app.vault.createFolder(this.settings.taskNoteDirectory);
-				} catch (e) {
-					// Folder might already exist or path might be invalid
+					await this.app.vault.createFolder(normalizedDir);
+				} catch (error) {
+					// Only show error if it's not about the folder already existing
+					if (error instanceof Error && !error.message.includes('already exists')) {
+						new Notice(`Failed to create directory: ${error.message}`);
+						// Fall back to root directory
+						filePath = fileName;
+					}
 				}
 			}
-			filePath = `${this.settings.taskNoteDirectory}/${fileName}`;
+			
+			// Only use the directory if we confirmed it exists or created it successfully
+			if (filePath !== fileName || folder) {
+				filePath = normalizedDir ? `${normalizedDir}/${fileName}` : fileName;
+			}
 		}
 		
 		try {
@@ -166,7 +178,7 @@ export default class MonoTaskNotePlugin extends Plugin {
 
 	async createDefaultTaskNote(filePath: string): Promise<TFile> {
 		const content = '';
-		return await this.app.vault.create(filePath, content);
+		return this.app.vault.create(filePath, content);
 	}
 
 	processTemplateVariables(content: string, fileName: string): string {

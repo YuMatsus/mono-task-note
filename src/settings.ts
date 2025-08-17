@@ -104,7 +104,7 @@ class TemplateSearchModal extends FuzzySuggestModal<TFile> {
 		const files = this.app.vault.getMarkdownFiles();
 		return files.filter(file => {
 			const path = file.path.toLowerCase();
-			return path.includes('template') || path.includes('テンプレート');
+			return path.includes('template');
 		});
 	}
 
@@ -129,7 +129,7 @@ class FolderSearchModal extends FuzzySuggestModal<TFolder> {
 		const folders: TFolder[] = [];
 		const rootFolder = this.app.vault.getRoot();
 		
-		const collectFolders = (folder: TFolder) => {
+		const collectFolders = (folder: TFolder): void => {
 			folders.push(folder);
 			for (const child of folder.children) {
 				if (child instanceof TFolder) {
@@ -139,7 +139,9 @@ class FolderSearchModal extends FuzzySuggestModal<TFolder> {
 		};
 		
 		collectFolders(rootFolder);
-		return folders;
+		return folders
+			.filter(f => f.path !== '.obsidian')
+			.sort((a, b) => a.path.localeCompare(b.path));
 	}
 
 	getItemText(folder: TFolder): string {
