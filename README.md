@@ -10,7 +10,7 @@ Mono Task Note treats each note as a single task, automatically managing task me
 
 ### Task Creation
 - **Create task note command**: Instantly create a new task note with predefined frontmatter
-  - Filename: Unix timestamp (e.g., `1734567890.md`)
+  - Filename: 13-digit Unix timestamp in milliseconds (e.g., `1734567890123.md`)
   - Task frontmatter fields:
     - `type`: task (identifies the note as a task)
     - `done`: false (completion status)
