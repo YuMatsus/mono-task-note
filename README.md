@@ -1,42 +1,49 @@
 # Mono Task Note
 
-An Obsidian plugin for managing tasks by adding metadata (frontmatter) to notes. This plugin treats notes with specific frontmatter fields as tasks, enabling structured task management within Obsidian.
+A streamlined Obsidian plugin that transforms individual notes into manageable tasks through structured frontmatter metadata. Perfect for users who prefer a one-note-per-task approach to task management.
+
+## Overview
+
+Mono Task Note treats each note as a single task, automatically managing task metadata through frontmatter fields. This approach integrates seamlessly with Obsidian's existing note-taking workflow while adding powerful task management capabilities.
 
 ## Features
 
-### Current Implementation
-
-- **Create task note command**: Creates a new note with task-specific frontmatter fields
+### Task Creation
+- **Create task note command**: Instantly create a new task note with predefined frontmatter
   - Filename: Unix timestamp (e.g., `1734567890.md`)
-  - Automatically adds the following frontmatter:
-    - `done`: false
-    - `due_date`: null
-    - `priority`: 4
-    - `scheduled_time`: null
-    - `type`: task
-  - Opens the created note automatically
+  - Task frontmatter fields:
+    - `type`: task (identifies the note as a task)
+    - `done`: false (completion status)
+    - `done_at`: null (completion timestamp)
+    - `due_date`: null (deadline for the task)
+    - `priority`: 4 (task priority level)
+    - `scheduled_time`: null (scheduled time)
+  - Automatically opens the created note for immediate editing
 
-- **Template support**: Use custom templates for task notes
-  - Configure template file in plugin settings
-  - Supports the same template variables as Obsidian's core Templates plugin:
+### Template System
+- **Custom templates**: Create task notes using your own templates
+  - Configure template file path in plugin settings
+  - **Full compatibility with Obsidian's core Templates plugin variables**:
     - `{{date}}`: Current date (YYYY-MM-DD)
     - `{{time}}`: Current time (HH:mm)
-    - `{{title}}`: Task note filename (timestamp)
+    - `{{title}}`: Task note filename
     - `{{date:FORMAT}}`: Custom date format (e.g., `{{date:YYYY/MM/DD}}`)
     - `{{time:FORMAT}}`: Custom time format (e.g., `{{time:HH:mm:ss}}`)
+  - Template selection via user-friendly modal interface
+  - Seamlessly works with your existing Obsidian templates
 
-- **Automatic done_at timestamp**: Automatically adds completion timestamp when task is marked as done
-  - When `done` is changed to `true`, automatically adds `done_at` field
-  - When `done` is changed to `false`, automatically removes `done_at` field
-  - Configurable timestamp format in plugin settings
-  - Default format: `YYYY-MM-DDTHH:mm:ssZ` (ISO 8601)
-  - Uses moment.js format strings for customization
-  - Updates `done_at` if it's null, undefined, or empty when marking as complete
+### Task Management
+- **Automatic completion tracking**: Smart timestamp management
+  - Automatically adds `done_at` timestamp when marking tasks complete
+  - Removes `done_at` when marking tasks incomplete
+  - Customizable timestamp format (default: ISO 8601)
+  - Preserves existing timestamps when appropriate
 
-- **Task completion commands**: Quick commands to manage task completion status (only works with `type: task` notes)
-  - **Complete current task**: Marks the active task as done and adds/updates `done_at` timestamp
-  - **Uncomplete current task**: Marks the task as incomplete and removes `done_at`
-  - **Toggle task completion**: Quickly switch between done/undone states
+- **Quick task commands**: Efficient task status management
+  - **Complete current task**: Mark active task as done with timestamp
+  - **Uncomplete current task**: Mark task as incomplete and clear timestamp
+  - **Toggle task completion**: Quick switch between done/undone states
+  - Commands only activate for notes with `type: task` frontmatter
 
 ## Installation
 
