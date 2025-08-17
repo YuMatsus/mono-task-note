@@ -21,7 +21,7 @@ export class TaskNoteCreator {
 	}
 
 	async createTaskNote(): Promise<void> {
-		const timestamp = moment().unix();
+		const timestamp = moment().format('x');
 		const fileName = `${timestamp}.md`;
 		
 		const filePath = this.getFilePath(fileName);
